@@ -1,0 +1,2 @@
+Visa Qiwi Wallet checkout
+=========================

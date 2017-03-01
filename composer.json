@@ -1,0 +1,25 @@
+{
+    "name": "kolesa-team/view-qiwi-wallet",
+    "description": "Client library for Visa Qiwi Wallet checkout",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Igor Borodikhin",
+            "email": "iborodikhin@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr4": {
+            "Qiwi\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "kriswallsmith/buzz": "^0.15.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^2.8",
+        "phpunit/phpunit": "^5.7"
+    }
+}
