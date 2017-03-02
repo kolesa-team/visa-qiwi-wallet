@@ -76,7 +76,7 @@ class Client
         if ($this->isResponseValid($response)) {
             $result = new Bill();
 
-            $result->fromArray($response['bill']);
+            $result->fromArray($response['response']['bill']);
 
             return $result;
         }
@@ -99,7 +99,7 @@ class Client
         if ($this->isResponseValid($response)) {
             $result = new Status();
 
-            $result->fromArray($response['bill']);
+            $result->fromArray($response['response']['bill']);
 
             return $result;
         }
@@ -120,9 +120,9 @@ class Client
         $response = $this->getContent($response);
 
         if ($this->isResponseValid($response)) {
-            $result = new Bill();
+            $result = new Status();
 
-            $result->fromArray($response['bill']);
+            $result->fromArray($response['response']['bill']);
 
             return $result;
         }
@@ -177,10 +177,10 @@ class Client
      */
     protected function isResponseValid($response)
     {
-        if (!is_array($response) || !isset($response['result_code'])) {
+        if (!is_array($response) || !isset($response['response']) || !isset($response['response']['result_code'])) {
             $exception = new JSON();
         } else {
-            $exception = ResponseException::factory($response['result_code']);
+            $exception = ResponseException::factory($response['response']['result_code']);
         }
 
         if ($exception !== null) {

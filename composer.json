@@ -10,12 +10,13 @@
         }
     ],
     "autoload": {
-        "psr4": {
-            "Qiwi\\": "src/"
+        "psr-4": {
+            "Qiwi\\": "src/",
+            "Qiwi\\Test\\": "tests/suite/"
         }
     },
-    "minimum-stability": "dev",
     "require": {
+        "php": "^5.6 || ^7.0",
         "kriswallsmith/buzz": "^0.15.0"
     },
     "require-dev": {

@@ -240,7 +240,7 @@ class Status extends Base implements Entity
      */
     public function setComment($comment)
     {
-        $this->preValidate('#^\.{0,255}$#u', $comment);
+        $this->preValidate('#^.{0,255}$#u', $comment);
 
         $this->comment = $comment;
 
@@ -282,31 +282,31 @@ class Status extends Base implements Entity
         $entity = new self();
 
         if (isset($input['bill_id'])) {
-            $entity->setBillId($input['bill_id']);
+            $entity->setBillId(strval($input['bill_id']));
         }
 
         if (isset($input['amount'])) {
-            $entity->setAmount($input['amount']);
+            $entity->setAmount(strval($input['amount']));
         }
 
         if (isset($input['ccy'])) {
-            $entity->setCurrency($input['ccy']);
+            $entity->setCurrency(strval($input['ccy']));
         }
 
         if (isset($input['status'])) {
-            $entity->setStatus($input['status']);
+            $entity->setStatus(strval($input['status']));
         }
 
         if (isset($input['error'])) {
-            $entity->setError($input['error']);
+            $entity->setError(strval($input['error']));
         }
 
         if (isset($input['user'])) {
-            $entity->setUser($input['user']);
+            $entity->setUser(strval($input['user']));
         }
 
         if (isset($input['comment'])) {
-            $entity->setComment($input['comment']);
+            $entity->setComment(strval($input['comment']));
         }
 
         return $entity;

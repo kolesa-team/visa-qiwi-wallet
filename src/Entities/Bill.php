@@ -210,7 +210,7 @@ class Bill extends Base implements Entity
      */
     public function setComment($comment)
     {
-        $this->preValidate('#^\.{0,255}$#u', $comment);
+        $this->preValidate('#^.{0,255}$#u', $comment);
 
         $this->comment = $comment;
 
@@ -237,7 +237,7 @@ class Bill extends Base implements Entity
     {
         $this->preValidate('#^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$#u', $lifetime);
 
-        $this->lifetime = new \DateTime($lifetime, 'GMT+0300');
+        $this->lifetime = new \DateTime($lifetime, new \DateTimeZone('GMT+0300'));
 
         return $this;
     }
@@ -260,7 +260,7 @@ class Bill extends Base implements Entity
      */
     public function setAccount($account)
     {
-        $this->preValidate('#^\.{0,100}$#u', $account);
+        $this->preValidate('#^.{0,100}$#u', $account);
 
         $this->account = $account;
 
@@ -310,7 +310,7 @@ class Bill extends Base implements Entity
      */
     public function setProviderName($providerName)
     {
-        $this->preValidate('#^\.{1,100}$#u', $providerName);
+        $this->preValidate('#^.{1,100}$#u', $providerName);
 
         $this->providerName = $providerName;
 
@@ -362,8 +362,10 @@ class Bill extends Base implements Entity
             'prv_name'   => $this->getProviderName(),
         ];
 
-        foreach ($this->getExtras() as $key => $value) {
-            $result = array_merge($result, ['extras[' . $key . ']' => $value]);
+        if (is_array($this->getExtras())) {
+            foreach ($this->getExtras() as $key => $value) {
+                $result = array_merge($result, ['extras[' . $key . ']' => $value]);
+            }
         }
 
         $result = array_filter($result);
@@ -384,35 +386,35 @@ class Bill extends Base implements Entity
         $entity = new self();
 
         if (isset($input['user'])) {
-            $entity->setUser($input['user']);
+            $entity->setUser(strval($input['user']));
         }
 
         if (isset($input['amount'])) {
-            $entity->setAmount($input['amount']);
+            $entity->setAmount(strval($input['amount']));
         }
 
         if (isset($input['ccy'])) {
-            $entity->setCurrency($input['ccy']);
+            $entity->setCurrency(strval($input['ccy']));
         }
 
         if (isset($input['comment'])) {
-            $entity->setComment($input['comment']);
+            $entity->setComment(strval($input['comment']));
         }
 
         if (isset($input['lifetime'])) {
-            $entity->setLifetime($input['lifetime']);
+            $entity->setLifetime(strval($input['lifetime']));
         }
 
         if (isset($input['account'])) {
-            $entity->setAccount($input['account']);
+            $entity->setAccount(strval($input['account']));
         }
 
         if (isset($input['pay_source'])) {
-            $entity->setLifetime($input['pay_source']);
+            $entity->setLifetime(strval($input['pay_source']));
         }
 
         if (isset($input['prv_name'])) {
-            $entity->setProviderName($input['prv_name']);
+            $entity->setProviderName(strval($input['prv_name']));
         }
 
         return $entity;
