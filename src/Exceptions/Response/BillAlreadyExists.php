@@ -4,7 +4,7 @@ namespace Qiwi\Exceptions\Response;
 /**
  * Exception thrown when bill already exists
  */
-class BillAllreadyExists extends Base
+class BillAlreadyExists extends Base
 {
     /**
      * {@inheritdoc}
