@@ -64,6 +64,7 @@ class Client
      */
     public function createBill(Bill $bill)
     {
+        $result   = false;
         $url      = sprintf('/api/v2/prv/%s/bills/%s', $this->providerId, $bill->getId());
         $response = $this->browser->submit(
             $url,
@@ -74,14 +75,10 @@ class Client
         $response = $this->getContent($response);
 
         if ($this->isResponseValid($response)) {
-            $result = new Bill();
-
-            $result->fromArray($response['response']['bill']);
-
-            return $result;
+            $result = Bill::fromArray($response['response']['bill']);
         }
 
-        return false;
+        return $result;
     }
 
     /**
@@ -92,19 +89,16 @@ class Client
      */
     public function billStatus($billId)
     {
+        $result   = false;
         $url      = sprintf($this->urlTemplate, $this->providerId, $billId);
         $response = $this->browser->get($url, $this->getRequestHeaders());
         $response = $this->getContent($response);
 
         if ($this->isResponseValid($response)) {
-            $result = new Status();
-
-            $result->fromArray($response['response']['bill']);
-
-            return $result;
+            $result = Status::fromArray($response['response']['bill']);
         }
 
-        return false;
+        return $result;
     }
 
     /**
@@ -115,19 +109,16 @@ class Client
      */
     public function billReject($billId)
     {
+        $result   = false;
         $url      = sprintf($this->urlTemplate, $this->providerId, $billId);
         $response = $this->browser->patch($url, $this->getRequestHeaders(), 'status=rejected');
         $response = $this->getContent($response);
 
         if ($this->isResponseValid($response)) {
-            $result = new Status();
-
-            $result->fromArray($response['response']['bill']);
-
-            return $result;
+            $result = Status::fromArray($response['response']['bill']);
         }
 
-        return false;
+        return $result;
     }
 
     /**

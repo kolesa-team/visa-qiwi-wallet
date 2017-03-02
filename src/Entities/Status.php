@@ -264,7 +264,9 @@ class Status extends Base implements Entity
             'comment' => $this->getComment(),
         ];
 
-        $result = array_filter($result);
+        $result = array_filter($result, function ($value) {
+            return $value !== null;
+        });
 
         $this->postValidate($result);
 

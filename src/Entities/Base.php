@@ -43,7 +43,7 @@ abstract class Base
     protected function postValidate(array $data)
     {
         foreach ($this->mandatoryFields as $mandatoryField) {
-            if (!isset($data[$mandatoryField]) || empty($data[$mandatoryField])) {
+            if (!isset($data[$mandatoryField]) || (empty($data[$mandatoryField]) && $data[$mandatoryField] !== '0')) {
                 throw new EmptyParameter(sprintf('Field "%s" is mandatory and not set', $mandatoryField));
             }
         }

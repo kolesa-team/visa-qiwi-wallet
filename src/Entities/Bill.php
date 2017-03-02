@@ -356,7 +356,7 @@ class Bill extends Base implements Entity
             'amount'     => $this->getAmount(),
             'ccy'        => $this->getCurrency(),
             'comment'    => $this->getComment(),
-            'lifetime'   => $this->getLifetime() ? $this->getLifetime()->format('c') : null,
+            'lifetime'   => $this->getLifetime() ? $this->getLifetime()->format('Y-m-d\TH:i:s') : null,
             'account'    => $this->getAccount(),
             'pay_source' => $this->getPaySource(),
             'prv_name'   => $this->getProviderName(),
@@ -368,7 +368,9 @@ class Bill extends Base implements Entity
             }
         }
 
-        $result = array_filter($result);
+        $result = array_filter($result, function ($value) {
+            return $value !== null;
+        });
 
         $this->postValidate($result);
 
@@ -410,12 +412,22 @@ class Bill extends Base implements Entity
         }
 
         if (isset($input['pay_source'])) {
-            $entity->setLifetime(strval($input['pay_source']));
+            $entity->setPaySource(strval($input['pay_source']));
         }
 
         if (isset($input['prv_name'])) {
             $entity->setProviderName(strval($input['prv_name']));
         }
+
+        $extras = [];
+
+        foreach ($input as $key => $value) {
+            if (strcmp(substr($key, 0, 6), 'extras') === 0) {
+                $extras[substr($key, 7, -1)] = $value;
+            }
+        }
+
+        $entity->setExtras($extras);
 
         return $entity;
     }

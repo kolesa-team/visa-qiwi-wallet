@@ -102,7 +102,8 @@ class TestClient extends TestCase
             ->setPaySource('qw')
             ->setLifetime($ttl->format('Y-m-d\TH:i:s'))
             ->setProviderName('Test provider')
-            ->setUser('tel:+79161231212');
+            ->setUser('tel:+79161231212')
+            ->setExtras(['A' => 'valueA', 'b' => 'valueB']);
 
         $result = $this->client->createBill($bill);
 
