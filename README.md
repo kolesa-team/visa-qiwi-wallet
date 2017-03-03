@@ -43,4 +43,3 @@ Client library for Visa Qiwi Wallet checkout process integration.
     $result = $client->billReject(str_pad('1', 10, '0', STR_PAD_LEFT));
     
     var_dump($result);
-
