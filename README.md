@@ -1,6 +1,8 @@
 Visa Qiwi Wallet checkout
 =========================
 
+Client library for Visa Qiwi Wallet checkout process integration.
+
 # Installation
 
     composer require kolesa-team/visa-qiwi-wallet
