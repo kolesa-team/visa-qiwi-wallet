@@ -1,5 +1,5 @@
 {
-    "name": "kolesa-team/view-qiwi-wallet",
+    "name": "kolesa-team/visa-qiwi-wallet",
     "description": "Client library for Visa Qiwi Wallet checkout",
     "type": "library",
     "license": "MIT",
