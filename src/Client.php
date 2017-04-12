@@ -171,7 +171,14 @@ class Client
         if (!is_array($response) || !isset($response['response']) || !isset($response['response']['result_code'])) {
             $exception = new JSON();
         } else {
-            $exception = ResponseException::factory($response['response']['result_code']);
+            $response['response']['description'] = (isset($response['response']['description'])
+                ? $response['response']['description']
+                : 'Unknown error');
+
+            $exception = ResponseException::factory(
+                $response['response']['result_code'],
+                $response['response']['description']
+            );
         }
 
         if ($exception !== null) {

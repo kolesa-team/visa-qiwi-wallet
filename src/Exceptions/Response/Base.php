@@ -10,55 +10,56 @@ abstract class Base extends BaseException
 {
     /**
      * @param  integer                        $responseCode
+     * @param  string                         $description
      * @return \Qiwi\Exceptions\Response\Base
      */
-    public static function factory($responseCode)
+    public static function factory($responseCode, $description)
     {
         switch ($responseCode) {
             case 5:
-                return new InvalidArgument();
+                return new InvalidArgument($description);
             case 13:
-                return new ServerUnavailable();
+                return new ServerUnavailable($description);
             case 78:
-                return new InvalidOperation();
+                return new InvalidOperation($description);
             case 150:
-                return new AuthorizationFailure();
+                return new AuthorizationFailure($description);
             case 152:
-                return new ProtocolUnavailable();
+                return new ProtocolUnavailable($description);
             case 210:
-                return new BillNotFound();
+                return new BillNotFound($description);
             case 215:
-                return new BillAlreadyExists();
+                return new BillAlreadyExists($description);
             case 241:
-                return new AmountTooLow();
+                return new AmountTooLow($description);
             case 242:
-                return new AmountTooHigh();
+                return new AmountTooHigh($description);
             case 298:
-                return new WalletNotFound();
+                return new WalletNotFound($description);
             case 300:
-                return new TechnicalFailure();
+                return new TechnicalFailure($description);
             case 303:
-                return new InvalidPhoneNumber();
+                return new InvalidPhoneNumber($description);
             case 316:
-                return new AuthorizationBlocked();
+                return new AuthorizationBlocked($description);
             case 319:
-                return new OperationNotPermitted();
+                return new OperationNotPermitted($description);
             case 339:
-                return new IPAddressBlocked();
+                return new IPAddressBlocked($description);
             case 341:
-                return new MandatoryParameterNotSet();
+                return new MandatoryParameterNotSet($description);
             case 700:
-                return new MonthlyLimitExceeded();
+                return new MonthlyLimitExceeded($description);
             case 774:
-                return new WalletBlocked();
+                return new WalletBlocked($description);
             case 1001:
-                return new CurrencyNotPermitted();
+                return new CurrencyNotPermitted($description);
             case 1003:
-                return new CurrencyRateUnavailable();
+                return new CurrencyRateUnavailable($description);
             case 1019:
-                return new MobileCarrierUnknown();
+                return new MobileCarrierUnknown($description);
             case 1419:
-                return new BillInProgress();
+                return new BillInProgress($description);
         }
 
         return null;
