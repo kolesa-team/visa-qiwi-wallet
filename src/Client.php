@@ -65,7 +65,7 @@ class Client
     public function createBill(Bill $bill)
     {
         $result   = false;
-        $url      = sprintf('/api/v2/prv/%s/bills/%s', $this->providerId, $bill->getId());
+        $url      = sprintf($this->urlTemplate, $this->providerId, $bill->getId());
         $response = $this->browser->submit(
             $url,
             $bill->toArray(),
