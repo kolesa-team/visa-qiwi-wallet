@@ -2,6 +2,7 @@
 namespace Qiwi;
 
 use Buzz\Browser;
+use Buzz\Client\FileGetContents;
 use Buzz\Message\MessageInterface;
 use Buzz\Message\RequestInterface;
 use Qiwi\Entities\Bill;
@@ -45,15 +46,23 @@ class Client
     /**
      * Constructor.
      *
-     * @param string $providerId
-     * @param string $login
-     * @param string $password
+     * @param string   $providerId
+     * @param string   $login
+     * @param string   $password
+     * @param null|int $timeout
      */
-    public function __construct($providerId, $login, $password)
+    public function __construct($providerId, $login, $password, $timeout = null)
     {
         $this->providerId    = $providerId;
         $this->authorization = $this->getAuthorizationString($login, $password);
-        $this->browser       = new Browser();
+
+        $client = new FileGetContents();
+
+        if ($timeout !== null) {
+            $client->setTimeout((int) $timeout);
+        }
+
+        $this->browser = new Browser($client);
     }
 
     /**
