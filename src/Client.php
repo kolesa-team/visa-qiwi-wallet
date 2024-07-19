@@ -177,7 +177,11 @@ class Client
      */
     protected function isResponseValid($response)
     {
-        if (!is_array($response) || !isset($response['response']) || !isset($response['response']['result_code'])) {
+        if (
+            !is_array($response) ||
+            !isset($response['response']) ||
+            !isset($response['response']['result_code']) ||
+            !isset($response['response']['bill'])) {
             $exception = new JSON();
         } else {
             $response['response']['description'] = (isset($response['response']['description'])

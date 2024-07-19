@@ -229,6 +229,10 @@ class TestClient extends TestCase
             ['invalid-data', '\Qiwi\Exceptions\Response\JSON'],
             [['result_code'], '\Qiwi\Exceptions\Response\JSON'],
             [['response'], '\Qiwi\Exceptions\Response\JSON'],
+            [['response' => [
+                'result_code' => 0,
+                'not_a_bill_field' => 'not_a_bill_field'
+            ]], '\Qiwi\Exceptions\Response\JSON'],
         ];
     }
 }
