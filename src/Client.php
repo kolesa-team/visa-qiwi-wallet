@@ -1,10 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi;
 
-use Buzz\Browser;
-use Buzz\Client\FileGetContents;
-use Buzz\Message\MessageInterface;
-use Buzz\Message\RequestInterface;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Request;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\ResponseInterface;
 use Qiwi\Entities\Bill;
 use Qiwi\Entities\Status;
 use Qiwi\Exceptions\Response\Base as ResponseException;
@@ -16,138 +19,101 @@ use Qiwi\Exceptions\Response\JSON;
 class Client
 {
     /**
-     * Browser client.
-     *
-     * @var \Buzz\Client\ClientInterface
+     * Http client
      */
-    protected $browser;
-
-    /**
-     * Provider id.
-     *
-     * @var string
-     */
-    protected $providerId;
+    protected ClientInterface $httpClient;
 
     /**
      * Authorization string.
-     *
-     * @var string
      */
-    protected $authorization;
+    protected string $authorization;
 
     /**
      * URL template for requests.
-     *
-     * @var string
      */
-    protected $urlTemplate = 'https://qwproxy.qiwi.com/api/v2/prv/%s/bills/%s';
+    protected string $urlTemplate = 'https://qwproxy.qiwi.com/api/v2/prv/%s/bills/%s';
 
-    /**
-     * Constructor.
-     *
-     * @param string   $providerId
-     * @param string   $login
-     * @param string   $password
-     * @param null|int $timeout
-     */
-    public function __construct($providerId, $login, $password, $timeout = null)
-    {
-        $this->providerId    = $providerId;
+    public function __construct(
+        protected string $providerId,
+        string $login,
+        string $password,
+        int $timeout = 30,
+        ?ClientInterface $httpClient = null,
+    ) {
         $this->authorization = $this->getAuthorizationString($login, $password);
-
-        $client = new FileGetContents();
-
-        if ($timeout !== null) {
-            $client->setTimeout((int) $timeout);
-        }
-
-        $this->browser = new Browser($client);
+        $this->httpClient    = $httpClient ?? new GuzzleClient(['timeout' => $timeout]);
     }
 
     /**
-     * Creates bill in Qiwi Wallet system.
-     *
-     * @param  \Qiwi\Entities\Bill $bill
-     * @return \Qiwi\Entities\Bill
+     * @throws \Psr\Http\Client\ClientExceptionInterface
+     * @throws \Qiwi\Exceptions\Response\Base
+     * @throws \Qiwi\Exceptions\Response\JSON
+     * @throws \Qiwi\Exceptions\Validation\EmptyParameter
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function createBill(Bill $bill)
+    public function createBill(Bill $bill): Bill
     {
-        $result   = false;
-        $url      = sprintf($this->urlTemplate, $this->providerId, $bill->getId());
-        $response = $this->browser->submit(
+        $url     = sprintf($this->urlTemplate, $this->providerId, $bill->getId());
+        $request = new Request(
+            'PUT',
             $url,
-            $bill->toArray(),
-            RequestInterface::METHOD_PUT,
-            $this->getRequestHeaders()
+            array_merge($this->getRequestHeaders(), ['Content-Type' => 'application/x-www-form-urlencoded']),
+            http_build_query($bill->toArray()),
         );
-        $response = $this->getContent($response);
+        $data = $this->getContent($this->httpClient->sendRequest($request));
+        $this->isResponseValid($data);
 
-        if ($this->isResponseValid($response)) {
-            $result = Bill::fromArray($response['response']['bill']);
-        }
-
-        return $result;
+        return Bill::fromArray($data['response']['bill']);
     }
 
     /**
-     * Returns bill status.
-     *
-     * @param  string                      $billId
-     * @return \Qiwi\Entities\Status|false
+     * @throws \Psr\Http\Client\ClientExceptionInterface
+     * @throws \Qiwi\Exceptions\Response\Base
+     * @throws \Qiwi\Exceptions\Response\JSON
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function billStatus($billId)
+    public function billStatus(string $billId): Status
     {
-        $result   = false;
-        $url      = sprintf($this->urlTemplate, $this->providerId, $billId);
-        $response = $this->browser->get($url, $this->getRequestHeaders());
-        $response = $this->getContent($response);
+        $url     = sprintf($this->urlTemplate, $this->providerId, $billId);
+        $request = new Request('GET', $url, $this->getRequestHeaders());
+        $data    = $this->getContent($this->httpClient->sendRequest($request));
+        $this->isResponseValid($data);
 
-        if ($this->isResponseValid($response)) {
-            $result = Status::fromArray($response['response']['bill']);
-        }
-
-        return $result;
+        return Status::fromArray($data['response']['bill']);
     }
 
     /**
-     * Rejects unpaid bill.
-     *
-     * @param  string              $billId
-     * @return \Qiwi\Entities\Bill
+     * @throws \Psr\Http\Client\ClientExceptionInterface
+     * @throws \Qiwi\Exceptions\Response\Base
+     * @throws \Qiwi\Exceptions\Response\JSON
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function billReject($billId)
+    public function billReject(string $billId): Status
     {
-        $result   = false;
-        $url      = sprintf($this->urlTemplate, $this->providerId, $billId);
-        $response = $this->browser->patch($url, $this->getRequestHeaders(), 'status=rejected');
-        $response = $this->getContent($response);
+        $url     = sprintf($this->urlTemplate, $this->providerId, $billId);
+        $request = new Request(
+            'PATCH',
+            $url,
+            array_merge($this->getRequestHeaders(), ['Content-Type' => 'application/x-www-form-urlencoded']),
+            'status=rejected',
+        );
+        $data = $this->getContent($this->httpClient->sendRequest($request));
+        $this->isResponseValid($data);
 
-        if ($this->isResponseValid($response)) {
-            $result = Status::fromArray($response['response']['bill']);
-        }
-
-        return $result;
+        return Status::fromArray($data['response']['bill']);
     }
 
-    /**
-     * Returns string for basic-authorization.
-     *
-     * @param  string $login
-     * @param  string $password
-     * @return string
-     */
-    protected function getAuthorizationString($login, $password)
+    protected function getAuthorizationString(string $login, string $password): string
     {
-        return sprintf("Basic %s", base64_encode(sprintf("%s:%s", $login, $password)));
+        return sprintf('Basic %s', base64_encode(sprintf('%s:%s', $login, $password)));
     }
 
     /**
      * Returns generic request headers.
      *
-     * @return array
+     * @return array<string, string>
      */
-    protected function getRequestHeaders()
+    protected function getRequestHeaders(): array
     {
         return [
             'Authorization' => $this->authorization,
@@ -158,41 +124,37 @@ class Client
     /**
      * Decodes message from json to array.
      *
-     * @param  \Buzz\Message\MessageInterface $response
-     * @return array|null
+     * @return array<mixed>|null
      */
-    protected function getContent(MessageInterface $response)
+    protected function getContent(ResponseInterface $response): ?array
     {
-        $content = $response->getContent();
-
-        return json_decode($content, true);
+        return json_decode((string) $response->getBody(), true);
     }
 
     /**
      * Checks if response is valid.
      *
-     * @param  mixed                          $response
-     * @return boolean
-     * @throws \Qiwi\Exceptions\Response\Base
+     * @phpstan-assert array{response: array{result_code: int, bill: array<string, mixed>}} $response
+     * @throws JSON
+     * @throws ResponseException
      */
-    protected function isResponseValid($response)
+    protected function isResponseValid(mixed $response): bool
     {
-        if (
-            !is_array($response) ||
-            !isset($response['response']) ||
-            !isset($response['response']['result_code']) ||
-            !isset($response['response']['bill'])) {
-            $exception = new JSON();
-        } else {
-            $response['response']['description'] = (isset($response['response']['description'])
-                ? $response['response']['description']
-                : 'Unknown error');
-
-            $exception = ResponseException::factory(
-                $response['response']['result_code'],
-                $response['response']['description']
-            );
+        if (!is_array($response) || !isset($response['response']) || !is_array($response['response'])) {
+            throw new JSON();
         }
+
+        $body = $response['response'];
+
+        if (!isset($body['result_code']) || !isset($body['bill'])) {
+            throw new JSON();
+        }
+
+        $description = (isset($body['description']) && is_string($body['description']))
+            ? $body['description']
+            : 'Unknown error';
+
+        $exception = ResponseException::factory((int) $body['result_code'], $description);
 
         if ($exception !== null) {
             throw $exception;

@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Wallet not found exception
  */
-class WalletNotFound extends Base
+final class WalletNotFound extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 298;
 }

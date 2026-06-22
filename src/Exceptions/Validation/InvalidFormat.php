@@ -1,9 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Validation;
 
 /**
  * Invalid format exception
  */
-class InvalidFormat extends Base
+final class InvalidFormat extends Base
 {
 }

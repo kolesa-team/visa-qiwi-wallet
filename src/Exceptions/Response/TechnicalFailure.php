@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Technical failure exception
  */
-class TechnicalFailure extends Base
+final class TechnicalFailure extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 300;
 }

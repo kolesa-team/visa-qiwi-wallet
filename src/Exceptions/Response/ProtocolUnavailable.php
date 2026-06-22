@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Protocol unavailable exception
  */
-class ProtocolUnavailable extends Base
+final class ProtocolUnavailable extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 152;
 }

@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Invalid argument exception
  */
-class InvalidArgument extends Base
+final class InvalidArgument extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 5;
 }

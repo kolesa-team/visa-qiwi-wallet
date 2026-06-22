@@ -1,22 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: majesty
- * Date: 01.03.17
- * Time: 15:12
- */
+
+declare(strict_types=1);
 
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Exception thrown when exchange rates for requested currency is not available
  */
-class CurrencyRateUnavailable extends Base
+final class CurrencyRateUnavailable extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 1003;
 }

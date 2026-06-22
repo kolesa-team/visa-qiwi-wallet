@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Entities;
 
 use Qiwi\Interfaces\Entity;
@@ -6,14 +9,12 @@ use Qiwi\Interfaces\Entity;
 /**
  * Bill status entity
  */
-class Status extends Base implements Entity
+final class Status extends Base implements Entity
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var array
+     * @var string[]
      */
-    protected $mandatoryFields = [
+    protected array $mandatoryFields = [
         'bill_id',
         'amount',
         'ccy',
@@ -25,70 +26,48 @@ class Status extends Base implements Entity
 
     /**
      * Bill id
-     *
-     * @var string
      */
-    protected $billId;
+    private string $billId;
 
     /**
      * Bill amount
-     *
-     * @var string
      */
-    protected $amount;
+    private string $amount;
 
     /**
      * Bill currency
-     *
-     * @var string
      */
-    protected $currency;
+    private string $currency;
 
     /**
      * Bill status
-     *
-     * @var string
      */
-    protected $status;
+    private string $status;
 
     /**
      * Error code
-     *
-     * @var string
      */
-    protected $error;
+    private string $error;
 
     /**
      * Bill user
-     *
-     * @var string
      */
-    protected $user;
+    private string $user;
 
     /**
      * Bill comment
-     *
-     * @var string
      */
-    protected $comment;
+    private string $comment;
 
-    /**
-     * {@see \Qiwi\Entities\Status::$billId}
-     *
-     * @return string
-     */
-    public function getBillId()
+    public function getBillId(): string
     {
         return $this->billId;
     }
 
     /**
-     * {@see \Qiwi\Entities\Status::$billId}
-     *
-     * @param  string                $billId
-     * @return \Qiwi\Entities\Status
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setBillId($billId)
+    public function setBillId(string $billId): self
     {
         $this->preValidate('#^.{10,200}$#u', $billId);
 
@@ -97,73 +76,47 @@ class Status extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entities\Status::$amount}
-     *
-     * @return string
-     */
-    public function getAmount()
+    public function getAmount(): string
     {
         return $this->amount;
     }
 
     /**
-     * {@see \Qiwi\Entities\Status::$amount}
-     *
-     * @param  string                $amount
-     * @return \Qiwi\Entities\Status
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setAmount($amount)
+    public function setAmount(string $amount): self
     {
         $this->preValidate('#^\d+(\.\d{0,3})?$#u', $amount);
-
         $this->amount = $amount;
 
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entities\Status::$currency}
-     *
-     * @return string
-     */
-    public function getCurrency()
+    public function getCurrency(): string
     {
         return $this->currency;
     }
 
     /**
-     * {@see \Qiwi\Entities\Status::$currency}
-     *
-     * @param  string                $currency
-     * @return \Qiwi\Entities\Status
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setCurrency($currency)
+    public function setCurrency(string $currency): self
     {
         $this->preValidate('#^[a-zA-Z]{3}$#u', $currency);
-
         $this->currency = $currency;
 
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entities\Status::$status}
-     *
-     * @return string
-     */
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
 
     /**
-     * {@see \Qiwi\Entities\Status::$status}
-     *
-     * @param  string                $status
-     * @return \Qiwi\Entities\Status
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setStatus($status)
+    public function setStatus(string $status): self
     {
         $this->preValidate('#^[a-z]{1,15}$#u', $status);
 
@@ -172,23 +125,15 @@ class Status extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entities\Status::$error}
-     *
-     * @return string
-     */
-    public function getError()
+    public function getError(): string
     {
         return $this->error;
     }
 
     /**
-     * {@see \Qiwi\Entities\Status::$error}
-     *
-     * @param  string                $error
-     * @return \Qiwi\Entities\Status
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setError($error)
+    public function setError(string $error): self
     {
         $this->preValidate('#^\d{1,4}$#u', $error);
 
@@ -197,23 +142,15 @@ class Status extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entities\Status::$user}
-     *
-     * @return string
-     */
-    public function getUser()
+    public function getUser(): string
     {
         return $this->user;
     }
 
     /**
-     * {@see \Qiwi\Entities\Status::$user}
-     *
-     * @param  string                $user
-     * @return \Qiwi\Entities\Status
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setUser($user)
+    public function setUser(string $user): self
     {
         $this->preValidate('#^tel:\+\d{1,15}$#u', $user);
 
@@ -222,23 +159,15 @@ class Status extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entities\Status::$comment}
-     *
-     * @return string
-     */
-    public function getComment()
+    public function getComment(): string
     {
         return $this->comment;
     }
 
     /**
-     * {@see \Qiwi\Entities\Status::$comment}
-     *
-     * @param  string                $comment
-     * @return \Qiwi\Entities\Status
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setComment($comment)
+    public function setComment(string $comment): self
     {
         $this->preValidate('#^.{0,255}$#u', $comment);
 
@@ -248,11 +177,10 @@ class Status extends Base implements Entity
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @return array
+     * @return array<string, string>
+     * @throws \Qiwi\Exceptions\Validation\EmptyParameter
      */
-    public function toArray()
+    public function toArray(): array
     {
         $result = [
             'bill_id' => $this->getBillId(),
@@ -264,22 +192,16 @@ class Status extends Base implements Entity
             'comment' => $this->getComment(),
         ];
 
-        $result = array_filter($result, function ($value) {
-            return $value !== null;
-        });
-
         $this->postValidate($result);
 
         return $result;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @param  array                 $input
-     * @return \Qiwi\Entities\Status
+     * @param  array<string, mixed>                      $input
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public static function fromArray(array $input)
+    public static function fromArray(array $input): Status
     {
         $entity = new self();
 

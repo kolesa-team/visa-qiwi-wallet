@@ -11,16 +11,22 @@
     ],
     "autoload": {
         "psr-4": {
-            "Qiwi\\": "src/",
+            "Qiwi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Qiwi\\Test\\": "tests/suite/"
         }
     },
     "require": {
-        "php": ">=5.4",
-        "kriswallsmith/buzz": "^0.15.0"
+        "php": ">=8.4",
+        "guzzlehttp/guzzle": "^6.0|^7.0"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^2.8",
-        "phpunit/phpunit": "^4.8"
+        "phpstan/phpstan": "^2.2",
+        "php-cs-fixer/shim": "^3.95",
+        "squizlabs/php_codesniffer": "*",
+        "phpunit/phpunit": "^13.2"
     }
 }
