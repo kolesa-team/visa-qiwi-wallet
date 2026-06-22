@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Exception thrown when requested bill is being paid
  */
-class BillInProgress extends Base
+final class BillInProgress extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 1419;
 }

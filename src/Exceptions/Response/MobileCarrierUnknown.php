@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Exception thrown when mobile carrier was not detected
  */
-class MobileCarrierUnknown extends Base
+final class MobileCarrierUnknown extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 1019;
 }

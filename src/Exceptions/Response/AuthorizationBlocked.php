@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Exception thrown when authorization attempt blocked
  */
-class AuthorizationBlocked extends Base
+final class AuthorizationBlocked extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 316;
 }

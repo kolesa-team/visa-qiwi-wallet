@@ -1,6 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Test;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Qiwi\Exceptions\Response\Base;
 
@@ -11,12 +15,9 @@ class TestException extends TestCase
 {
     /**
      * Tests whether created exception is of correct type.
-     *
-     * @dataProvider \Qiwi\Test\TestException::factoryMethodProvider
-     * @param integer $responseCode
-     * @param string  $className
      */
-    public function testFactoryMethod($responseCode, $className)
+    #[DataProvider('factoryMethodProvider')]
+    public function testFactoryMethod(int $responseCode, string $className): void
     {
         $exception = Base::factory($responseCode);
 
@@ -27,33 +28,33 @@ class TestException extends TestCase
     /**
      * Data-provider for factory method test.
      *
-     * @return array
+     * @return array<string, array{0: int, 1: class-string}>
      */
-    public function factoryMethodProvider()
+    public static function factoryMethodProvider(): array
     {
         return [
-            [5,    '\Qiwi\Exceptions\Response\InvalidArgument'],
-            [13,   '\Qiwi\Exceptions\Response\ServerUnavailable'],
-            [78,   '\Qiwi\Exceptions\Response\InvalidOperation'],
-            [150,  '\Qiwi\Exceptions\Response\AuthorizationFailure'],
-            [152,  '\Qiwi\Exceptions\Response\ProtocolUnavailable'],
-            [210,  '\Qiwi\Exceptions\Response\BillNotFound'],
-            [215,  '\Qiwi\Exceptions\Response\BillAlreadyExists'],
-            [241,  '\Qiwi\Exceptions\Response\AmountTooLow'],
-            [242,  '\Qiwi\Exceptions\Response\AmountTooHigh'],
-            [298,  '\Qiwi\Exceptions\Response\WalletNotFound'],
-            [300,  '\Qiwi\Exceptions\Response\TechnicalFailure'],
-            [303,  '\Qiwi\Exceptions\Response\InvalidPhoneNumber'],
-            [316,  '\Qiwi\Exceptions\Response\AuthorizationBlocked'],
-            [319,  '\Qiwi\Exceptions\Response\OperationNotPermitted'],
-            [339,  '\Qiwi\Exceptions\Response\IPAddressBlocked'],
-            [341,  '\Qiwi\Exceptions\Response\MandatoryParameterNotSet'],
-            [700,  '\Qiwi\Exceptions\Response\MonthlyLimitExceeded'],
-            [774,  '\Qiwi\Exceptions\Response\WalletBlocked'],
-            [1001, '\Qiwi\Exceptions\Response\CurrencyNotPermitted'],
-            [1003, '\Qiwi\Exceptions\Response\CurrencyRateUnavailable'],
-            [1019, '\Qiwi\Exceptions\Response\MobileCarrierUnknown'],
-            [1419, '\Qiwi\Exceptions\Response\BillInProgress'],
+            'InvalidArgument'          => [5,    \Qiwi\Exceptions\Response\InvalidArgument::class],
+            'ServerUnavailable'        => [13,   \Qiwi\Exceptions\Response\ServerUnavailable::class],
+            'InvalidOperation'         => [78,   \Qiwi\Exceptions\Response\InvalidOperation::class],
+            'AuthorizationFailure'     => [150,  \Qiwi\Exceptions\Response\AuthorizationFailure::class],
+            'ProtocolUnavailable'      => [152,  \Qiwi\Exceptions\Response\ProtocolUnavailable::class],
+            'BillNotFound'             => [210,  \Qiwi\Exceptions\Response\BillNotFound::class],
+            'BillAlreadyExists'        => [215,  \Qiwi\Exceptions\Response\BillAlreadyExists::class],
+            'AmountTooLow'             => [241,  \Qiwi\Exceptions\Response\AmountTooLow::class],
+            'AmountTooHigh'            => [242,  \Qiwi\Exceptions\Response\AmountTooHigh::class],
+            'WalletNotFound'           => [298,  \Qiwi\Exceptions\Response\WalletNotFound::class],
+            'TechnicalFailure'         => [300,  \Qiwi\Exceptions\Response\TechnicalFailure::class],
+            'InvalidPhoneNumber'       => [303,  \Qiwi\Exceptions\Response\InvalidPhoneNumber::class],
+            'AuthorizationBlocked'     => [316,  \Qiwi\Exceptions\Response\AuthorizationBlocked::class],
+            'OperationNotPermitted'    => [319,  \Qiwi\Exceptions\Response\OperationNotPermitted::class],
+            'IPAddressBlocked'         => [339,  \Qiwi\Exceptions\Response\IPAddressBlocked::class],
+            'MandatoryParameterNotSet' => [341, \Qiwi\Exceptions\Response\MandatoryParameterNotSet::class],
+            'MonthlyLimitExceeded'     => [700,  \Qiwi\Exceptions\Response\MonthlyLimitExceeded::class],
+            'WalletBlocked'            => [774,  \Qiwi\Exceptions\Response\WalletBlocked::class],
+            'CurrencyNotPermitted'     => [1001, \Qiwi\Exceptions\Response\CurrencyNotPermitted::class],
+            'CurrencyRateUnavailable'  => [1003, \Qiwi\Exceptions\Response\CurrencyRateUnavailable::class],
+            'MobileCarrierUnknown'     => [1019, \Qiwi\Exceptions\Response\MobileCarrierUnknown::class],
+            'BillInProgress'           => [1419, \Qiwi\Exceptions\Response\BillInProgress::class],
         ];
     }
 }

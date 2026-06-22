@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Exception thrown when monthly limit exceeded
  */
-class MonthlyLimitExceeded extends Base
+final class MonthlyLimitExceeded extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 700;
 }

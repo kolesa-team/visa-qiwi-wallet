@@ -1,9 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Validation;
 
 /**
  * Empty parameter exception
  */
-class EmptyParameter extends Base
+final class EmptyParameter extends Base
 {
 }

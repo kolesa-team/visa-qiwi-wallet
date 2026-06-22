@@ -1,10 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Test;
 
-use Buzz\Message\Response;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
 use Qiwi\Client;
 use Qiwi\Entities\Bill;
+use Qiwi\Entities\Status;
+use Qiwi\Exceptions\Response\JSON;
 
 /**
  * Main client test
@@ -12,77 +20,40 @@ use Qiwi\Entities\Bill;
 class TestClient extends TestCase
 {
     /**
-     * Test client
+     * Make mock client
      *
-     * @var \Qiwi\Client
+     * @param array<mixed> $data
      */
-    protected $client;
+    private function makeClient(array $data): Client
+    {
+        $mockHttp = $this->createStub(ClientInterface::class);
+        $mockHttp->method('sendRequest')
+            ->willReturn(new GuzzleResponse(200, [], (string) json_encode($data)));
+
+        return new Client('1', 'login', 'password', 30, $mockHttp);
+    }
 
     /**
-     * {@inheritdoc}
+     * Returns a response bill payload
+     *
+     * @return array<string, mixed>
      */
-    public function setUp()
+    private static function billPayload(string $billId, string $status): array
     {
-        $this->client = new Client('1', 'login', 'password');
-
-        $submitResponse = new Response();
-        $submitResponse->setContent(json_encode([
+        return [
             'response' => [
                 'result_code' => 0,
                 'bill'        => [
-                    'bill_id' => str_pad('1', 10, '0', STR_PAD_LEFT),
+                    'bill_id' => $billId,
                     'amount'  => '99.95',
                     'ccy'     => 'USD',
-                    'status'  => 'waiting',
+                    'status'  => $status,
                     'error'   => 0,
                     'user'    => 'tel:+79161231212',
                     'comment' => 'Invoice from ShopName',
                 ],
             ],
-        ]));
-
-        $getResponse = new Response();
-        $getResponse->setContent(json_encode([
-            'response' => [
-                'result_code' => 0,
-                'bill'        => [
-                    'bill_id' => str_pad('2', 10, '0', STR_PAD_LEFT),
-                    'amount'  => '99.95',
-                    'ccy'     => 'USD',
-                    'status'  => 'paid',
-                    'error'   => 0,
-                    'user'    => 'tel:+79161231212',
-                    'comment' => 'Invoice from ShopName',
-                ],
-            ]
-        ]));
-
-        $patchResponse = new Response();
-        $patchResponse->setContent(json_encode([
-            'response' => [
-                'result_code' => 0,
-                'bill'        => [
-                    'bill_id' => str_pad('3', 10, '0', STR_PAD_LEFT),
-                    'amount'  => '99.95',
-                    'ccy'     => 'USD',
-                    'status'  => 'rejected',
-                    'error'   => 0,
-                    'user'    => 'tel:+79161231212',
-                    'comment' => 'Invoice from ShopName',
-                ],
-            ]
-        ]));
-
-        $fakeBrowser = $this->getMock('\Buzz\Browser', ['submit', 'get', 'patch']);
-        $fakeBrowser->method('submit')->willReturn($submitResponse);
-        $fakeBrowser->method('get')->willReturn($getResponse);
-        $fakeBrowser->method('patch')->willReturn($patchResponse);
-
-
-        $property = new \ReflectionProperty($this->client, 'browser');
-        $property->setAccessible(true);
-
-        $property->setValue($this->client, $fakeBrowser);
+        ];
     }
 
     /**
@@ -90,11 +61,13 @@ class TestClient extends TestCase
      */
     public function testCreateBill()
     {
+        $client = $this->makeClient(self::billPayload('0000000001', 'waiting'));
+
         $ttl = new \DateTime();
         $ttl->add(new \DateInterval('PT1H'));
 
-        $bill = new Bill();
-        $bill->setId(str_pad('1', 10, '0', STR_PAD_LEFT))
+        $bill = (new Bill())
+            ->setId(str_pad('1', 10, '0', STR_PAD_LEFT))
             ->setAccount('test account')
             ->setAmount('99.95')
             ->setComment('Invoice from ShopName')
@@ -105,134 +78,156 @@ class TestClient extends TestCase
             ->setUser('tel:+79161231212')
             ->setExtras(['A' => 'valueA', 'b' => 'valueB']);
 
-        $result = $this->client->createBill($bill);
+        $result = $client->createBill($bill);
 
-        $this->assertNotFalse($result);
-        $this->assertInstanceOf('\Qiwi\Entities\Bill', $result);
+        $this->assertInstanceOf(Bill::class, $result);
     }
 
     /**
      * Check if bill status got
      */
-    public function testBillStatus()
+    public function testBillStatus(): void
     {
-        $result = $this->client->billStatus(str_pad('1', 10, '0', STR_PAD_LEFT));
+        $client = $this->makeClient(self::billPayload('0000000002', 'paid'));
+        $result = $client->billStatus(str_pad('1', 10, '0', STR_PAD_LEFT));
 
-        $this->assertNotFalse($result);
-        $this->assertInstanceOf('\Qiwi\Entities\Status', $result);
+        $this->assertInstanceOf(Status::class, $result);
     }
 
     /**
      * Check if bill rejected
      */
-    public function testBillReject()
+    public function testBillReject(): void
     {
-        $result = $this->client->billReject(str_pad('1', 10, '0', STR_PAD_LEFT));
+        $client = $this->makeClient(self::billPayload('0000000003', 'rejected'));
+        $result = $client->billReject(str_pad('1', 10, '0', STR_PAD_LEFT));
 
-        $this->assertNotFalse($result);
-        $this->assertInstanceOf('\Qiwi\Entities\Status', $result);
+        $this->assertInstanceOf(Status::class, $result);
     }
 
     /**
      * Check if JSON exception thrown on invalid response
      *
-     * @dataProvider \Qiwi\Test\TestClient::isResponseValidNegativeProvider
-     * @param mixed  $data
-     * @param string $exceptionClass
+     * @param array<mixed>|string $data
+     * @param string              $exceptionClass
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     * @throws \ReflectionException
      */
-    public function testIsResponseValidNegative($data, $exceptionClass)
+    #[DataProvider('isResponseValidNegativeProvider')]
+    public function testIsResponseValidNegative(array|string $data, string $exceptionClass): void
     {
-        $exception = null;
-        $method    = new \ReflectionMethod($this->client, 'isResponseValid');
-        $method->setAccessible(true);
+        $mockHttp = $this->createStub(ClientInterface::class);
+        $client   = new Client('1', 'login', 'password', 30, $mockHttp);
 
-        try {
-            $method->invoke($this->client, $data);
-        } catch (\Exception $e) {
-            $exception = $e;
-        }
+        $method = new \ReflectionMethod($client, 'isResponseValid');
 
-        $this->assertNotNull($exception);
-        $this->assertInstanceOf($exceptionClass, $exception);
+        $this->expectException($exceptionClass);
+        $method->invoke($client, $data);
     }
 
-    /**
-     * Check if authorization string is valid
-     */
-    public function testGetAuthorizationString()
+    public function testGetAuthorizationString(): void
     {
-        $login    = 'login';
-        $password = 'password';
-        $expected = 'Basic bG9naW46cGFzc3dvcmQ=';
-        $method   = new \ReflectionMethod($this->client, 'getAuthorizationString');
-        $method->setAccessible(true);
+        $mockHttp = $this->createStub(ClientInterface::class);
+        $client   = new Client('1', 'login', 'password', 30, $mockHttp);
 
-        $actual = $method->invoke($this->client, $login, $password);
-        $this->assertEquals($expected, $actual);
+        $method = new \ReflectionMethod($client, 'getAuthorizationString');
+        $actual = $method->invoke($client, 'login', 'password');
+
+        $this->assertSame('Basic bG9naW46cGFzc3dvcmQ=', $actual);
     }
 
     /**
      * Check if request headers are correct
      */
-    public function testGetRequestHeaders()
+    public function testGetRequestHeaders(): void
     {
-        $method = new \ReflectionMethod($this->client, 'getRequestHeaders');
-        $method->setAccessible(true);
+        $mockHttp = $this->createStub(ClientInterface::class);
+        $client   = new Client('1', 'login', 'password', 30, $mockHttp);
 
-        $actual = $method->invoke($this->client);
-        $this->assertInternalType('array', $actual);
+        $method = new \ReflectionMethod($client, 'getRequestHeaders');
+        $actual = $method->invoke($client);
+
+        $this->assertIsArray($actual);
         $this->assertArrayHasKey('Authorization', $actual);
         $this->assertArrayHasKey('Accept', $actual);
-        $this->assertEquals('Basic bG9naW46cGFzc3dvcmQ=', $actual['Authorization']);
-        $this->assertEquals('text/json', $actual['Accept']);
+        $this->assertSame('Basic bG9naW46cGFzc3dvcmQ=', $actual['Authorization']);
+        $this->assertSame('text/json', $actual['Accept']);
     }
 
     /**
      * Check if data from Response was decoded correctly
      */
-    public function testGetContent()
+    public function testGetContent(): void
     {
-        $data = [
-            'response' => [
-                'result_code' => 0,
-                'bill'        => [
-                    'bill_id' => str_pad('3', 10, '0', STR_PAD_LEFT),
-                    'amount'  => '99.95',
-                    'ccy'     => 'USD',
-                    'status'  => 'rejected',
-                    'error'   => 0,
-                    'user'    => 'tel:+79161231212',
-                    'comment' => 'Invoice from ShopName',
-                ],
-            ]
-        ];
+        $mockHttp = $this->createStub(ClientInterface::class);
+        $client   = new Client('1', 'login', 'password', 30, $mockHttp);
 
-        $method = new \ReflectionMethod($this->client, 'getContent');
-        $method->setAccessible(true);
+        $data     = self::billPayload('0000000003', 'rejected');
+        $response = new GuzzleResponse(200, [], (string) json_encode($data));
 
-        $response = new Response();
-        $response->setContent(json_encode($data));
+        $method = new \ReflectionMethod($client, 'getContent');
+        $actual = $method->invoke($client, $response);
 
-        $actual = $method->invoke($this->client, $response);
-        $this->assertInternalType('array', $actual);
-        $this->assertArraySubset($data, $actual);
+        $this->assertIsArray($actual);
+        $this->assertArrayHasKey('response', $actual);
+        $this->assertArrayHasKey('result_code', $actual['response']);
+        $this->assertArrayHasKey('bill', $actual['response']);
+    }
+
+    /**
+     * Check if create bill and sends correct method
+     */
+    public function testCreateBillSendsCorrectMethod(): void
+    {
+        $capturedRequest = null;
+        $mockHttp        = $this->createStub(ClientInterface::class);
+        $mockHttp->method('sendRequest')
+            ->willReturnCallback(function (RequestInterface $request) use (&$capturedRequest) {
+                $capturedRequest = $request;
+
+                return new GuzzleResponse(200, [], (string) json_encode(self::billPayload('0000000001', 'waiting')));
+            });
+
+        $client = new Client('1', 'login', 'password', 30, $mockHttp);
+
+        $ttl  = (new \DateTime())->add(new \DateInterval('PT1H'));
+        $bill = (new Bill())
+            ->setId(str_pad('1', 10, '0', STR_PAD_LEFT))
+            ->setAccount('test account')
+            ->setAmount('99.95')
+            ->setComment('Invoice from ShopName')
+            ->setCurrency('USD')
+            ->setPaySource('qw')
+            ->setLifetime($ttl->format('Y-m-d\TH:i:s'))
+            ->setUser('tel:+79161231212');
+
+        $client->createBill($bill);
+
+        $this->assertNotNull($capturedRequest);
+        $this->assertSame('PUT', $capturedRequest->getMethod());
+        $this->assertStringContainsString('prv/1/bills/', (string) $capturedRequest->getUri());
     }
 
     /**
      * Data-provider for negative test of isResponseValid
      *
-     * @return array
+     * @return array<string, array{0: array<mixed>|string, 1: string}>
      */
-    public function isResponseValidNegativeProvider()
+    public static function isResponseValidNegativeProvider(): array
     {
         return [
-            ['invalid-data', '\Qiwi\Exceptions\Response\JSON'],
-            [['result_code'], '\Qiwi\Exceptions\Response\JSON'],
-            [['response'], '\Qiwi\Exceptions\Response\JSON'],
-            [['response' => [
-                'result_code' => 0,
-                'not_a_bill_field' => 'not_a_bill_field'
-            ]], '\Qiwi\Exceptions\Response\JSON'],
+            'string input'            => ['invalid-data', JSON::class],
+            'missing response key'    => [['result_code'], JSON::class],
+            'response without fields' => [['response' => []], JSON::class],
+            'missing bill field'      => [
+                [
+                    'response' => [
+                        'result_code'    => 0,
+                        'not_a_bill_key' => 'value',
+                    ],
+                ],
+                JSON::class,
+            ],
         ];
     }
 }

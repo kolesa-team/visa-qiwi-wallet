@@ -1,15 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Exceptions\Response;
 
 /**
  * Exception thrown when mandatory parameter not set or invalid
  */
-class MandatoryParameterNotSet extends Base
+final class MandatoryParameterNotSet extends Base
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var integer
+     * @var int
      */
     protected $code = 341;
 }

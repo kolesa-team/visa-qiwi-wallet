@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Entities;
 
 use Qiwi\Interfaces\Entity;
@@ -6,14 +9,12 @@ use Qiwi\Interfaces\Entity;
 /**
  * Bill entity
  */
-class Bill extends Base implements Entity
+final class Bill extends Base implements Entity
 {
     /**
-     * {@inheritdoc}
-     *
-     * @var array
+     * @var string[]
      */
-    protected $mandatoryFields = [
+    protected array $mandatoryFields = [
         'user',
         'amount',
         'ccy',
@@ -24,91 +25,65 @@ class Bill extends Base implements Entity
 
     /**
      * Bill id
-     *
-     * @var string
      */
-    protected $id;
+    private string $id;
 
     /**
      * User telephone number
-     *
-     * @var string
      */
-    protected $user;
+    private string $user;
 
     /**
      * Bill amount
-     *
-     * @var string
      */
-    protected $amount;
+    private string $amount;
 
     /**
      * Bill currency
-     *
-     * @var string
      */
-    protected $currency;
+    private string $currency;
 
     /**
      * Bill comment
-     *
-     * @var string
      */
-    protected $comment;
+    private string $comment;
 
     /**
      * Bill lifetime
-     *
-     * @var \DateTime
      */
-    protected $lifetime;
+    private \DateTime $lifetime;
 
     /**
      * User account
-     *
-     * @var string
      */
-    protected $account;
+    private string $account;
 
     /**
      * Payment source [mobile, qw]
-     *
-     * @var string
      */
-    protected $paySource = 'mobile';
+    private string $paySource = 'mobile';
 
     /**
      * Provider name
-     *
-     * @var string
      */
-    protected $providerName;
+    private ?string $providerName = null;
 
     /**
      * Bill extra parameters.
      *
-     * @var array
+     * @var array<string, string>|null
      */
-    protected $extras;
+    private ?array $extras = null;
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$id}
-     *
-     * @return string
-     */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
     /**
-     * {@see \Qiwi\Entity\Bill::$id}
-     *
-     * @param  string              $id
-     * @return \Qiwi\Entities\Bill
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setId($id)
+    public function setId(string $id): self
     {
         $this->preValidate('#^.{10,200}$#u', $id);
 
@@ -117,23 +92,15 @@ class Bill extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$user}
-     *
-     * @return string
-     */
-    public function getUser()
+    public function getUser(): string
     {
         return $this->user;
     }
 
     /**
-     * {@see \Qiwi\Entity\Bill::$user}
-     *
-     * @param  string              $user
-     * @return \Qiwi\Entities\Bill
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setUser($user)
+    public function setUser(string $user): self
     {
         $this->preValidate('#tel:\+\d{1,15}$#u', $user);
 
@@ -142,23 +109,15 @@ class Bill extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$amount}
-     *
-     * @return string
-     */
-    public function getAmount()
+    public function getAmount(): string
     {
         return $this->amount;
     }
 
     /**
-     * {@see \Qiwi\Entity\Bill::$amount}
-     *
-     * @param  string              $amount
-     * @return \Qiwi\Entities\Bill
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setAmount($amount)
+    public function setAmount(string $amount): self
     {
         $this->preValidate('#^\d+(.\d{0,3})?$#u', $amount);
 
@@ -167,23 +126,15 @@ class Bill extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$currency}
-     *
-     * @return string
-     */
-    public function getCurrency()
+    public function getCurrency(): string
     {
         return $this->currency;
     }
 
     /**
-     * {@see \Qiwi\Entity\Bill::$currency}
-     *
-     * @param  string              $currency
-     * @return \Qiwi\Entities\Bill
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setCurrency($currency)
+    public function setCurrency(string $currency): self
     {
         $this->preValidate('#^[a-zA-Z]{3}$#u', $currency);
 
@@ -192,23 +143,15 @@ class Bill extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$comment}
-     *
-     * @return string
-     */
-    public function getComment()
+    public function getComment(): string
     {
         return $this->comment;
     }
 
     /**
-     * {@see \Qiwi\Entity\Bill::$comment}
-     *
-     * @param  string              $comment
-     * @return \Qiwi\Entities\Bill
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setComment($comment)
+    public function setComment(string $comment): self
     {
         $this->preValidate('#^.{0,255}$#u', $comment);
 
@@ -217,23 +160,16 @@ class Bill extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$lifetime}
-     *
-     * @return \DateTime
-     */
-    public function getLifetime()
+    public function getLifetime(): \DateTime
     {
         return $this->lifetime;
     }
 
     /**
-     * {@see \Qiwi\Entity\Bill::$lifetime}
-     *
-     * @param  string              $lifetime
-     * @return \Qiwi\Entities\Bill
+     * @throws \DateMalformedStringException
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setLifetime($lifetime)
+    public function setLifetime(string $lifetime): self
     {
         $this->preValidate('#^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$#u', $lifetime);
 
@@ -242,23 +178,15 @@ class Bill extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$account}
-     *
-     * @return string
-     */
-    public function getAccount()
+    public function getAccount(): string
     {
         return $this->account;
     }
 
     /**
-     * {@see \Qiwi\Entity\Bill::$account}
-     *
-     * @param  string              $account
-     * @return \Qiwi\Entities\Bill
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setAccount($account)
+    public function setAccount(string $account): self
     {
         $this->preValidate('#^.{0,100}$#u', $account);
 
@@ -267,48 +195,25 @@ class Bill extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$paySource}
-     *
-     * @return string
-     */
-    public function getPaySource()
+    public function getPaySource(): string
     {
         return $this->paySource;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$paySource}
-     *
-     * @param  string              $paySource
-     * @return \Qiwi\Entities\Bill
-     */
-    public function setPaySource($paySource)
+    public function setPaySource(string $paySource): self
     {
         $this->preValidate('#^((mobile)|(qw)){1}$#u', $paySource);
-
         $this->paySource = $paySource;
 
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$providerName}
-     *
-     * @return string
-     */
-    public function getProviderName()
+    public function getProviderName(): ?string
     {
         return $this->providerName;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$providerName}
-     *
-     * @param  string              $providerName
-     * @return \Qiwi\Entities\Bill
-     */
-    public function setProviderName($providerName)
+    public function setProviderName(string $providerName): self
     {
         $this->preValidate('#^.{1,100}$#u', $providerName);
 
@@ -317,25 +222,19 @@ class Bill extends Base implements Entity
         return $this;
     }
 
-    /**
-     * {@see \Qiwi\Entity\Bill::$extras}
-     *
-     * @return array
-     */
-    public function getExtras()
+    /** @return array<string, string>|null */
+    public function getExtras(): ?array
     {
         return $this->extras;
     }
 
     /**
-     * {@see \Qiwi\Entity\Bill::$extras}
-     *
-     * @param  array               $extras
-     * @return \Qiwi\Entities\Bill
+     * @param  array<string, string>                     $extras
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public function setExtras(array $extras)
+    public function setExtras(array $extras): static
     {
-        array_walk($extras, function ($value) {
+        array_walk($extras, function (mixed $value): void {
             $this->preValidate('#^.{0,500}$#u', $value);
         });
 
@@ -345,32 +244,31 @@ class Bill extends Base implements Entity
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @return array
+     * @return array<string, string>
+     * @throws \Qiwi\Exceptions\Validation\EmptyParameter
      */
-    public function toArray()
+    #[\Override]
+    public function toArray(): array
     {
         $result = [
             'user'       => $this->getUser(),
             'amount'     => $this->getAmount(),
             'ccy'        => $this->getCurrency(),
             'comment'    => $this->getComment(),
-            'lifetime'   => $this->getLifetime() ? $this->getLifetime()->format('Y-m-d\TH:i:s') : null,
+            'lifetime'   => $this->getLifetime()->format('Y-m-d\TH:i:s'),
             'account'    => $this->getAccount(),
             'pay_source' => $this->getPaySource(),
-            'prv_name'   => $this->getProviderName(),
         ];
 
-        if (is_array($this->getExtras())) {
-            foreach ($this->getExtras() as $key => $value) {
-                $result = array_merge($result, ['extras[' . $key . ']' => $value]);
-            }
+        if ($this->getProviderName() !== null) {
+            $result['prv_name'] = $this->getProviderName();
         }
 
-        $result = array_filter($result, function ($value) {
-            return $value !== null;
-        });
+        if ($this->getExtras() !== null) {
+            foreach ($this->getExtras() as $key => $value) {
+                $result['extras[' . $key . ']'] = $value;
+            }
+        }
 
         $this->postValidate($result);
 
@@ -378,12 +276,11 @@ class Bill extends Base implements Entity
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @param  array               $input
-     * @return \Qiwi\Entities\Bill
+     * @param  array<string, mixed>                      $input
+     * @throws \Qiwi\Exceptions\Validation\InvalidFormat
      */
-    public static function fromArray(array $input)
+    #[\Override]
+    public static function fromArray(array $input): Bill
     {
         $entity = new self();
 
@@ -406,15 +303,12 @@ class Bill extends Base implements Entity
         if (isset($input['lifetime'])) {
             $entity->setLifetime(strval($input['lifetime']));
         }
-
         if (isset($input['account'])) {
             $entity->setAccount(strval($input['account']));
         }
-
         if (isset($input['pay_source'])) {
             $entity->setPaySource(strval($input['pay_source']));
         }
-
         if (isset($input['prv_name'])) {
             $entity->setProviderName(strval($input['prv_name']));
         }
@@ -422,12 +316,14 @@ class Bill extends Base implements Entity
         $extras = [];
 
         foreach ($input as $key => $value) {
-            if (strcmp(substr($key, 0, 6), 'extras') === 0) {
-                $extras[substr($key, 7, -1)] = $value;
+            if (str_starts_with($key, 'extras')) {
+                $extras[substr($key, 7, -1)] = strval($value);
             }
         }
 
-        $entity->setExtras($extras);
+        if ($extras !== []) {
+            $entity->setExtras($extras);
+        }
 
         return $entity;
     }

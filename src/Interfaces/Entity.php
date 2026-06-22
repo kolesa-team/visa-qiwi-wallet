@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Qiwi\Interfaces;
 
 /**
@@ -9,15 +12,14 @@ interface Entity
     /**
      * Returns array representation of entity
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray();
+    public function toArray(): array;
 
     /**
      * Constructs entity from array
      *
-     * @param  array                   $input
-     * @return \Qiwi\Interfaces\Entity
+     * @param array<string, mixed> $input
      */
-    public static function fromArray(array $input);
+    public static function fromArray(array $input): Entity;
 }
